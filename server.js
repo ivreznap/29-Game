@@ -1,3 +1,7 @@
+const { v4: uuidv4 } = require('uuid');
+
+// Map to store player names and their corresponding UUIDs
+const playerUUIDs = new Map();
 const express = require('express'), app = express();
 const http = require('http').Server(app);
 const io = require('socket.io')(http, { pingInterval: 6000, pingTimeout: 8000 });
@@ -156,31 +160,59 @@ class rooms {
 			'modes': this.room_modes
 		};
 	}
+/*--------------------------------*/
+addPlayer(ID, pass, name, team) {
+  var login = this.checkLogin(ID, pass, true);
+  if (login.success) {
+    // Generate a unique UUID for the player if it doesn't exist
+    let playerUUID = playerUUIDs.get(name);
+    if (!playerUUID) {
+      playerUUID = generateUniqueUUID();
+      playerUUIDs.set(name, playerUUID);
+    }
 
-	addPlayer(ID, pass, name, team) {
-		var login = this.checkLogin(ID, pass, true);
-		if (login.success) {
-			if (team == 'purple' && this.room_teampurple[login.index].length < 2) {
-				var x = this.room_teampurple[login.index].push(name);
-				console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
-				return { 'success': true, 'playerid': (x - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
-			}
-			else if (team == 'green' && this.room_teamgreen[login.index].length < 2) {
-				var x = this.room_teamgreen[login.index].push(name);
-				console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
-				return { 'success': true, 'playerid': (x - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
-			}
-			else {
-				console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
-				return { 'success': false };
-			}
-		}
-		else {
-			console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
-			return { 'success': false };
-		}
-	}
+    // Check if the player is already connected
+    if (isPlayerConnected(playerUUID)) {
+      console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+      return { 'success': false };
+    }
 
+    // Add the player to the team based on the specified team color
+    if (team == 'purple' && this.room_teampurple[login.index].length < 2) {
+      var x = this.room_teampurple[login.index].push(name);
+      console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
+      return { 'success': true, 'playerid': (x - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
+    } else if (team == 'green' && this.room_teamgreen[login.index].length < 2) {
+      var x = this.room_teamgreen[login.index].push(name);
+      console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
+      return { 'success': true, 'playerid': (x - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
+    } else {
+      console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+      return { 'success': false };
+    }
+  } else {
+    console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+    return { 'success': false };
+  }
+}
+
+function generateUniqueUUID() {
+  let uuid = '';
+
+  // Generate a 12-digit unique UUID
+  while (uuid.length < 12) {
+    const randomDigit = Math.floor(Math.random() * 10);
+    uuid += randomDigit;
+  }
+
+  return uuid;
+}
+
+function isPlayerConnected(uuid) {
+  // Logic to check if the player with the given UUID is connected
+  // Return true if connected, false otherwise
+}
+/*---------------*/
 	getTeams(ID, pass) {
 		var login = this.checkLogin(ID, pass, true);
 		if (login.success) {
