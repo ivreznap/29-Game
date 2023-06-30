@@ -1,5 +1,4 @@
 const express = require('express'), app = express();
-const app = express();
 const bodyParser = require('body-parser');
 const port = 3000;
 const http = require('http').Server(app);
