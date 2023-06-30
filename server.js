@@ -162,7 +162,8 @@ class rooms {
 	}
 /*--------------------------------*/
 function addPlayer(ID, pass, name, team) {
-var login = this.checkLogin(ID, pass, true);
+var team;
+
 if (login.success) {
 if (team === 'purple' && this.room_teampurple[login.index].length < 2) {
 var uuid = uuid.v4();
