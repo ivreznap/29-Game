@@ -1,6 +1,5 @@
 const express = require('express'), app = express();
 const bodyParser = require('body-parser');
-const port = 3000;
 const http = require('http').Server(app);
 const io = require('socket.io')(http, { pingInterval: 6000, pingTimeout: 8000 });
 const mongoClient = require('mongodb').MongoClient;
