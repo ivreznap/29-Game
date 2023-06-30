@@ -156,30 +156,69 @@ class rooms {
 			'modes': this.room_modes
 		};
 	}
-
+/*--------------------------------*/
 	addPlayer(ID, pass, name, team) {
-		var login = this.checkLogin(ID, pass, true);
-		if (login.success) {
-			if (team == 'purple' && this.room_teampurple[login.index].length < 2) {
-				var x = this.room_teampurple[login.index].push(name);
-				console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
-				return { 'success': true, 'playerid': (x - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
-			}
-			else if (team == 'green' && this.room_teamgreen[login.index].length < 2) {
-				var x = this.room_teamgreen[login.index].push(name);
-				console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
-				return { 'success': true, 'playerid': (x - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
-			}
-			else {
-				console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
-				return { 'success': false };
-			}
-		}
-		else {
-			console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
-			return { 'success': false };
-		}
-	}
+  var login = this.checkLogin(ID, pass, true);
+  if (login.success) {
+    if (team == 'purple' && this.room_teampurple[login.index].length < 2) {
+      var playerId = this.generateUUID(); // Generate a 12-digit UUID
+      var playerIndex = this.findPlayerIndex(login.index, name); // Check if the player already exists in the room
+
+      if (playerIndex === -1) {
+        // New player, assign the UUID
+        this.room_teampurple[login.index].push({ name, playerId });
+      } else {
+        // Existing player, reuse the previous UUID
+        playerId = this.room_teampurple[login.index][playerIndex].playerId;
+      }
+
+      console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
+      return { 'success': true, 'playerid': playerId, 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
+    } else if (team == 'green' && this.room_teamgreen[login.index].length < 2) {
+      var playerId = this.generateUUID(); // Generate a 12-digit UUID
+      var playerIndex = this.findPlayerIndex(login.index, name); // Check if the player already exists in the room
+
+      if (playerIndex === -1) {
+        // New player, assign the UUID
+        this.room_teamgreen[login.index].push({ name, playerId });
+      } else {
+        // Existing player, reuse the previous UUID
+        playerId = this.room_teamgreen[login.index][playerIndex].playerId;
+      }
+
+      console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID));
+      return { 'success': true, 'playerid': playerId, 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
+    } else {
+      console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+      return { 'success': false };
+    }
+  } else {
+    console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+    return { 'success': false };
+  }
+}
+
+generateUUID() {
+  return Math.floor(100000000000 + Math.random() * 900000000000); // Generate a random 12-digit number
+}
+
+findPlayerIndex(roomIndex, playerName) {
+  for (var i = 0; i < this.room_teampurple[roomIndex].length; i++) {
+    if (this.room_teampurple[roomIndex][i].name === playerName) {
+      return i; // Player found in teampurple
+    }
+  }
+
+  for (var i = 0; i < this.room_teamgreen[roomIndex].length; i++) {
+    if (this.room_teamgreen[roomIndex][i].name === playerName) {
+      return i; // Player found in teamgreen
+    }
+  }
+
+  return -1; // Player not found
+}
+
+/*--------------------------*/
 
 	getTeams(ID, pass) {
 		var login = this.checkLogin(ID, pass, true);
