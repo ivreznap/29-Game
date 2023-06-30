@@ -12,7 +12,7 @@ var collection, maxElems = 10, aggFunc;
 
 const LOG_ENABLE = false;
 
-console.log(colors.bgYellow.black('29 cards for Gand's'));
+console.log(colors.bgYellow.black('29 cards for Gands'));
 
 mongoClient.connect(mURI, { useNewUrlParser: true, useUnifiedTopology: true }, (err, client) => {
 	if (err)
