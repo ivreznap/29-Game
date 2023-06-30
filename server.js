@@ -1,4 +1,7 @@
 const express = require('express'), app = express();
+const app = express();
+const bodyParser = require('body-parser');
+const port = 3000;
 const http = require('http').Server(app);
 const io = require('socket.io')(http, { pingInterval: 6000, pingTimeout: 8000 });
 const mongoClient = require('mongodb').MongoClient;
@@ -1103,4 +1106,47 @@ io.on('connection', function (socket) {
 	});
 	/* end VoiceServer */
 
+	/*------*/
+// In-memory storage for user accounts (Replace with a database in a production environment)
+const users = [];
+
+// Middleware for parsing JSON request bodies
+app.use(bodyParser.json());
+
+// Signup endpoint
+app.post('/signup', (req, res) => {
+  const { username, password } = req.body;
+
+  // Check if the username is already taken
+  const existingUser = users.find(user => user.username === username);
+  if (existingUser) {
+    return res.status(400).json({ error: 'Username is already taken' });
+  }
+
+  // Create a new user object and add it to the users array
+  const newUser = { username, password };
+  users.push(newUser);
+
+  // Return a success message
+  res.json({ message: 'Signup successful' });
+});
+
+// Login endpoint
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Find the user with the matching username and password
+  const user = users.find(user => user.username === username && user.password === password);
+  if (!user) {
+    return res.status(401).json({ error: 'Invalid username or password' });
+  }
+
+  // Return a success message or any other relevant user data
+  res.json({ message: 'Login successful', user });
+});
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
 });
