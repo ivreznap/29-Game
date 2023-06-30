@@ -161,26 +161,40 @@ class rooms {
 		};
 	}
 /*--------------------------------*/
-addPlayer(ID, pass, name, team)
-    var login = this.checkLogin(ID, pass, true);
-    if (login.success):
-        if (team == 'purple' && this.room_teampurple[login.index].length < 2):
-            var uuid = uuid.v4();
-            this.room_teampurple[login.index].push([uuid, name]);
-            console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID + '->' + uuid));
-            return { 'success': true, 'playerid': (this.room_teampurple[login.index].length - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
-        elif (team == 'green' && this.room_teamgreen[login.index].length < 2):
-            var uuid = uuid.v4();
-            this.room_teamgreen[login.index].push([uuid, name]);
-            console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID + '->' + uuid));
-            return { 'success': true, 'playerid': (this.room_teamgreen[login.index].length - 1), 'teampurple': this.room_teampurple[login.index], 'teamgreen': this.room_teamgreen[login.index], 'mode': this.room_modes[login.index] };
-        else:
-            console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
-            return { 'success': false };
-    else:
-        console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
-        return { 'success': false };
+function addPlayer(ID, pass, name, team) {
+var login = this.checkLogin(ID, pass, true);
+if (login.success) {
+if (team === 'purple' && this.room_teampurple[login.index].length < 2) {
+var uuid = uuid.v4();
+this.room_teampurple[login.index].push([uuid, name]);
+console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID + '->' + uuid));
+return {
+'success': true,
+'playerid': (this.room_teampurple[login.index].length - 1),
+'teampurple': this.room_teampurple[login.index],
+'teamgreen': this.room_teamgreen[login.index],
+'mode': this.room_modes[login.index]
+};
+} else if (team === 'green' && this.room_teamgreen[login.index].length < 2) {
+var uuid = uuid.v4();
+this.room_teamgreen[login.index].push([uuid, name]);
+console.log(colors.bgBlue.green('Player added to team in room: ' + name + '->' + team + '->' + ID + '->' + uuid));
+return {
+'success': true,
+'playerid': (this.room_teamgreen[login.index].length - 1),
+'teampurple': this.room_teampurple[login.index],
+'teamgreen': this.room_teamgreen[login.index],
+'mode': this.room_modes[login.index]
+};
+} else {
+console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+return { 'success': false };
 }
+} else {
+console.log(colors.bgRed.black('Player added to team in room failed: ' + name + '->' + team + '->' + ID));
+return { 'success': false };
+}
+
 /*---------------*/
 	getTeams(ID, pass) {
 		var login = this.checkLogin(ID, pass, true);
