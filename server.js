@@ -1111,8 +1111,18 @@ function attachUuidToPlayerName(playerName, players) {
   try {
     uuid = require('uuid');
   } catch (error) {
-    console.log('UUID module is not available. Please install the uuid module.');
-    return;
+    console.log('UUID module is not available. Installing uuid module...');
+
+    // Install uuid module using npm
+    const { execSync } = require('child_process');
+    try {
+      execSync('npm install uuid');
+      uuid = require('uuid');
+      console.log('UUID module installed successfully.');
+    } catch (error) {
+      console.log('Failed to install UUID module. Please install it manually using "npm install uuid".');
+      return;
+    }
   }
 
   // Check if the player already has a UUID assigned
