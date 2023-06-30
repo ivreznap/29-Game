@@ -161,7 +161,7 @@ class rooms {
 		};
 	}
 /*--------------------------------*/
-addPlayer(ID, pass, name, team):
+addPlayer(ID, pass, name, team)
     var login = this.checkLogin(ID, pass, true);
     if (login.success):
         if (team == 'purple' && this.room_teampurple[login.index].length < 2):
