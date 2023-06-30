@@ -1103,44 +1103,61 @@ io.on('connection', function (socket) {
 	});
 	/* end VoiceServer */
 
-	const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid');
 
-function attachUuidToPlayerName(playerName, players) {
-  // Check if uuid module is available
-  let uuid;
-  try {
-    uuid = require('uuid');
-  } catch (error) {
-    console.log('UUID module is not available. Installing uuid module...');
+// Map to store player names and their corresponding UUIDs
+const playerUUIDs = new Map();
 
-    // Install uuid module using npm
-    const { execSync } = require('child_process');
-    try {
-      execSync('npm install uuid');
-      uuid = require('uuid');
-      console.log('UUID module installed successfully.');
-    } catch (error) {
-      console.log('Failed to install UUID module. Please install it manually using "npm install uuid".');
-      return;
+function setPlayerName(playerName) {
+  // Generate a unique UUID for the player
+  const uuid = uuidv4();
+
+  // Check if the player name already exists
+  if (playerUUIDs.has(playerName)) {
+    // Player name already exists, check the UUID
+    const existingUUID = playerUUIDs.get(playerName);
+
+    // Check if the player is already connected
+    if (isPlayerConnected(existingUUID)) {
+      // Player is already connected, cannot take their place
+      throw new Error('Player is already connected');
+    } else {
+      // Player is disconnected, update their UUID
+      playerUUIDs.set(playerName, uuid);
     }
-  }
-
-  // Check if the player already has a UUID assigned
-  let player = players.find((player) => player.name === playerName);
-  if (player && player.uuid) {
-    return player.uuid; // Return the existing UUID
-  }
-
-  // Generate a new UUID and attach it to the player name
-  const newUuid = uuid.v4();
-  if (player) {
-    player.uuid = newUuid; // Update the existing player with the new UUID
   } else {
-    players.push({ name: playerName, uuid: newUuid }); // Add a new player with the UUID
+    // Player name doesn't exist, add it to the map
+    playerUUIDs.set(playerName, uuid);
   }
 
-  return newUuid;
+  return uuid;
 }
 
+function isPlayerConnected(uuid) {
+  // Logic to check if the player with the given UUID is connected
+  // Return true if connected, false otherwise
+}
+
+function getPlayerUUID(playerName) {
+  return playerUUIDs.get(playerName);
+}
+
+// Usage example
+const playerName = 'John';
+
+try {
+  const uuid = setPlayerName(playerName);
+  console.log(`Player '${playerName}' connected with UUID: ${uuid}`);
+} catch (error) {
+  console.error(`Error: ${error.message}`);
+}
+
+// When the player reconnects, retrieve their UUID
+const reconnectedPlayerUUID = getPlayerUUID(playerName);
+if (reconnectedPlayerUUID && isPlayerConnected(reconnectedPlayerUUID)) {
+  // Player is already connected, handle accordingly
+} else {
+  // Player is not connected, allow reconnection
+}
 
 });
