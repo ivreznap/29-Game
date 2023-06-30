@@ -1105,59 +1105,32 @@ io.on('connection', function (socket) {
 
 	const { v4: uuidv4 } = require('uuid');
 
-// Map to store player names and their corresponding UUIDs
-const playerUUIDs = new Map();
-
-function setPlayerName(playerName) {
-  // Generate a unique UUID for the player
-  const uuid = uuidv4();
-
-  // Check if the player name already exists
-  if (playerUUIDs.has(playerName)) {
-    // Player name already exists, check the UUID
-    const existingUUID = playerUUIDs.get(playerName);
-
-    // Check if the player is already connected
-    if (isPlayerConnected(existingUUID)) {
-      // Player is already connected, cannot take their place
-      throw new Error('Player is already connected');
-    } else {
-      // Player is disconnected, update their UUID
-      playerUUIDs.set(playerName, uuid);
-    }
-  } else {
-    // Player name doesn't exist, add it to the map
-    playerUUIDs.set(playerName, uuid);
+function attachUuidToPlayerName(playerName, players) {
+  // Check if uuid module is available
+  let uuid;
+  try {
+    uuid = require('uuid');
+  } catch (error) {
+    console.log('UUID module is not available. Please install the uuid module.');
+    return;
   }
 
-  return uuid;
+  // Check if the player already has a UUID assigned
+  let player = players.find((player) => player.name === playerName);
+  if (player && player.uuid) {
+    return player.uuid; // Return the existing UUID
+  }
+
+  // Generate a new UUID and attach it to the player name
+  const newUuid = uuid.v4();
+  if (player) {
+    player.uuid = newUuid; // Update the existing player with the new UUID
+  } else {
+    players.push({ name: playerName, uuid: newUuid }); // Add a new player with the UUID
+  }
+
+  return newUuid;
 }
 
-function isPlayerConnected(uuid) {
-  // Logic to check if the player with the given UUID is connected
-  // Return true if connected, false otherwise
-}
-
-function getPlayerUUID(playerName) {
-  return playerUUIDs.get(playerName);
-}
-
-// Usage example
-const playerName = 'John';
-
-try {
-  const uuid = setPlayerName(playerName);
-  console.log(`Player '${playerName}' connected with UUID: ${uuid}`);
-} catch (error) {
-  console.error(`Error: ${error.message}`);
-}
-
-// When the player reconnects, retrieve their UUID
-const reconnectedPlayerUUID = getPlayerUUID(playerName);
-if (reconnectedPlayerUUID && isPlayerConnected(reconnectedPlayerUUID)) {
-  // Player is already connected, handle accordingly
-} else {
-  // Player is not connected, allow reconnection
-}
 
 });
